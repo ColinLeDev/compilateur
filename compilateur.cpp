@@ -104,12 +104,10 @@ char OpRel(void){	// Relational operator
 }
 // ExpA == Digit := "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
 void ExpA(void){
-	if((current<'0')||(current>'9'))
-		Error("Chiffre attendu");		   // Digit expected
-	else{
-		cout << "\tpush $"<<current<<endl;
-		ReadChar();
-	}
+	// Since I want to compare arithmetical expressions, I need to call the function ArithmeticExpression
+	ArithmeticExpression();
+	return; // Block Digit because it's replaced by ArithmeticExpression
+	Digit();
 }
 
 void Exp(void){
