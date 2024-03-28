@@ -93,7 +93,60 @@ void ArithmeticExpression(void){
 			cout << "\tsubq	%rbx, %rax"<<endl;	// substract both operands
 		cout << "\tpush %rax"<<endl;			// store result
 	}
+}
 
+char OpRel(void){	// Relational operator
+	if(current!='='&&current!='<'&&current!='>'&&current!='!')
+		Error("Opérateur relationnel attendu");
+	char oprel=current;
+	ReadChar();
+	return oprel;
+}
+// ExpA == Digit := "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
+void ExpA(void){
+	if((current<'0')||(current>'9'))
+		Error("Chiffre attendu");		   // Digit expected
+	else{
+		cout << "\tpush $"<<current<<endl;
+		ReadChar();
+	}
+}
+
+void Exp(void){
+	ExpA();
+	if(current=='<'||current=='>'||current=='='||current=='!'){
+		char oprel = OpRel();
+		ExpA();
+		cout << "\tpop %rax"<<endl;
+		cout << "\tpop %rbx"<<endl;
+		cout << "\tcmpq %rax, %rbx"<<endl;
+		switch (oprel)
+		{
+		case '<':
+			cout << "\tjb Vrai\t# Aller sur code de vrai"<<endl;
+			break;
+
+		case '>':
+			cout << "\tja Vrai\t# Aller sur code de vrai"<<endl;
+			break;
+
+		case '=':
+			cout << "\tje Vrai\t# Aller sur code de vrai"<<endl;
+			break;
+
+		case '!':
+			cout << "\tjne Vrai\t# Aller sur code de vrai"<<endl;
+			break;
+		
+		default:
+			Error("Opérateur relationnel attendu - default triggered");
+			break;
+		}
+		cout << "Faux:\tpush $0\t# Faux sur la pile"<<endl;
+		cout << "\tjmp FinExp\t# Aller à Fin, évider code faux"<<endl;
+		cout << "Vrai:\tpush $-1\t# Code de vrai"<<endl;
+		cout << "FinExp:";
+	}
 }
 
 int main(void){	// First version : Source code on standard input and assembly code on standard output
@@ -106,7 +159,8 @@ int main(void){	// First version : Source code on standard input and assembly co
 
 	// Let's proceed to the analysis and code production
 	ReadChar();
-	ArithmeticExpression();
+	// ArithmeticExpression();
+	Exp();
 	ReadChar();
 	// Trailer for the gcc assembler / linker
 	cout << "\tmovq %rbp, %rsp\t\t# Restore the position of the stack's top"<<endl;
