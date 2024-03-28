@@ -59,19 +59,28 @@ void AdditiveOperator(void){
 		Error("Opérateur additif attendu");	   // Additive operator expected
 }
 		
-// Digit := "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
-void Digit(void){
+// Number := "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
+void Number(void){
 	if((current<'0')||(current>'9'))
-		Error("Chiffre attendu");		   // Digit expected
+		Error("Chiffre attendu");		   // Number expected
 	else{
-		cout << "\tpush $"<<current<<endl;
+		string number;
+		number.append(1,current);
+		do{
+			LookAhead();
+			if((lookedAhead<'0')||(lookedAhead>'9'))
+				break;
+			number.append(1,lookedAhead);
+			ReadChar();
+		}while(true);
 		ReadChar();
+		cout << "\tpush $"<<number<<endl;
 	}
 }
 
 void ArithmeticExpression(void);			// Called by Term() and calls Term()
 
-// Term := Digit | "(" ArithmeticExpression ")"
+// Term := Number | "(" ArithmeticExpression ")"
 void Term(void){
 	if(current=='('){
 		ReadChar();
@@ -83,7 +92,7 @@ void Term(void){
 	}
 	else 
 		if (current>='0' && current <='9')
-			Digit();
+			Number();
 	     	else
 			Error("'(' ou chiffre attendu");
 }
@@ -113,12 +122,12 @@ char OpRel(void){	// Relational operator
 	ReadChar();
 	return oprel;
 }
-// ExpA == Digit := "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
+// ExpA == Number := "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
 void ExpA(void){
 	// Since I want to compare arithmetical expressions, I need to call the function ArithmeticExpression
 	ArithmeticExpression();
-	return; // Block Digit because it's replaced by ArithmeticExpression
-	Digit();
+	return; // Block Number because it's replaced by ArithmeticExpression
+	Number();
 }
 
 void Exp(void){
