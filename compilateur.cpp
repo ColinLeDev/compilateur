@@ -25,12 +25,23 @@
 
 using namespace std;
 
-char current;				// Current char	
+char current, lookedAhead;                // Current char    
+int NLookedAhead=0;
 
-void ReadChar(void){		// Read character and skip spaces until 
-				// non space character is read
-	while(cin.get(current) && (current==' '||current=='\t'||current=='\n'))
-	   	cin.get(current);
+void ReadChar(void){
+    if(NLookedAhead>0){
+        current=lookedAhead;    // Char has already been read
+        NLookedAhead--;
+    }
+    else
+        // Read character and skip spaces until 
+        // non space character is read
+        while(cin.get(current) && (current==' '||current=='\t'||current=='\n'));
+}
+
+void LookAhead(void){
+    while(cin.get(lookedAhead) && (lookedAhead==' '||lookedAhead=='\t'||lookedAhead=='\n'));
+    NLookedAhead++;
 }
 
 void Error(string s){
