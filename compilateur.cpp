@@ -66,13 +66,16 @@ void Number(void){
 	else{
 		string number;
 		number.append(1,current);
-		do{
-			LookAhead();
-			if((lookedAhead<'0')||(lookedAhead>'9'))
-				break;
-			number.append(1,lookedAhead);
-			ReadChar();
-		}while(true);
+		cerr << "Number : "<<number<<endl;
+		LookAhead();  // Look the next char to see if it's a digit
+		cerr << "Char to test : "<<lookedAhead<<endl;
+		while((lookedAhead>='0')&&(lookedAhead<='9')){ // If it's a digit, we add it to the number
+			number.append(1,lookedAhead); 
+			cerr << "Number : "<<number<<endl; 
+			LookAhead(); // Prepare the next step of the while
+			// ReadChar(); // Cancel the previous LookAhead (to keep NLookedAhead at 1)
+			cerr << "Char to test : "<<lookedAhead<<endl;
+		}
 		ReadChar();
 		cout << "\tpush $"<<number<<endl;
 	}
