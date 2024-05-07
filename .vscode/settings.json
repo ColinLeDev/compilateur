@@ -2,7 +2,10 @@
   "files.associations": {
     "*.embeddedhtml": "html",
     "*.meta": "json",
+    "*.sql": "sql",
+    "*.pl": "prolog",
     "xstring": "cpp",
-    "iostream": "cpp"
+    "iostream": "cpp",
+    "ostream": "cpp"
   }
 }
