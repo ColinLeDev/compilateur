@@ -698,7 +698,7 @@ void IfStatement(void)
 	ReadKeyword("IF"); // Lire le "IF"
 	int localTag = ++TagNumber;
 
-	cout << "IF" << localTag << ":" << endl;
+	cout << "_IF" << localTag << ":" << endl;
 	TYPES type = Expression();
 	if (type != BOOLEAN)
 	{
@@ -707,19 +707,19 @@ void IfStatement(void)
 	}
 
 	ReadKeyword("THEN"); // Lire le "THEN"
-	cout << "IFCHECK" << localTag << ":\t popq %rax" << endl;
+	cout << "_IFCHECK" << localTag << ":\t popq %rax" << endl;
 	cout << "\tcmpq $0, %rax" << endl;
-	cout << "\tje IFELSE" << localTag << endl;
-	cout << "IFTHEN" << localTag << ":" << endl;
+	cout << "\tje _IFELSE \t (if _)==FALSE" << localTag << endl; // Permet en théorie de pouvoir utiliser des non booléens
+	cout << "_IFTHEN" << localTag << ":" << endl;
 	Statement();
-	cout << "\tjmp IFEND" << localTag << endl;
-	cout << "IFELSE" << localTag << ":" << endl;
+	cout << "\tjmp _IFEND" << localTag << endl;
+	cout << "_IFELSE" << localTag << ":" << endl;
 	if (IsKeyword("ELSE"))
 	{
 		ReadKeyword("ELSE");
 		Statement();
 	}
-	cout << "IFEND" << localTag << ":" << endl;
+	cout << "_IFEND" << localTag << ":" << endl;
 }
 
 // WhileStatement := "WHILE" Expression "DO" Statement
@@ -731,24 +731,24 @@ void WhileStatement(void)
 	}
 	ReadKeyword("WHILE");
 	int localTag = ++TagNumber;
-	cout << "While" << localTag << ":" << endl;
+	cout << "_While" << localTag << ":" << endl;
 	TYPES type = Expression();
 	if (!CheckType(type, BOOLEAN))
 	{
 		cerr << "Type de l'expression : " << charTypeToString(type) << endl;
 		Error("L'expression dans le WHILE doit être de type BOOLEAN");
 	}
-	cout << "WhileCheck" << localTag << ":\t popq %rax" << endl;
+	cout << "_WhileCheck" << localTag << ":\t popq %rax" << endl;
 	cout << "\tcmpq $0, %rax" << endl;
-	cout << "\tje WhileEnd" << localTag << endl;
+	cout << "\tje _WhileEnd" << localTag << endl;
 	if (!IsKeyword("DO"))
 	{
 		Error("Mot clé 'DO' attendu");
 	}
 	Read(); // Lire le "DO"
 	Statement();
-	cout << "\tjmp While" << localTag << endl;
-	cout << "WhileEnd" << localTag << ":" << endl;
+	cout << "\tjmp _While" << localTag << endl;
+	cout << "_WhileEnd" << localTag << ":" << endl;
 }
 
 // ForStatement := "FOR" Identifier ":=" Expression "TO" Expression "DO" Statement
@@ -760,27 +760,27 @@ void ForStatement(void)
 		Error("Identificateur attendu");
 	}
 	int localTag = ++TagNumber;
-	cout << "ForAssign" << localTag << ":" << endl;
+	cout << "_ForAssign" << localTag << ":" << endl;
 	string varBoucle = AssignementStatement();
-	cout << "ForTo" << localTag << ":" << endl;
+	cout << "_ForTo" << localTag << ":" << endl;
 	bool isTo = IsKeyword("TO");
 	if (isTo)
 		ReadKeyword("TO");
 	else
 		ReadKeyword("DOWNTO");
 	Expression();
-	cout << "ForTest" << localTag << ":\t movq (%rsp), %rax" << endl;
+	cout << "_ForTest" << localTag << ":\t movq (%rsp), %rax" << endl;
 	cout << "\tcmpq %rax, " << varBoucle << endl;
 	if (isTo)
-		cout << "\tja ForEnd" << localTag << "\t# si varBoucle > i" << endl;
+		cout << "\tja _ForEnd" << localTag << "\t# si varBoucle > i" << endl;
 	else
-		cout << "\tjb ForEnd" << localTag << "\t# si varBoucle < i" << endl;
+		cout << "\tjb _ForEnd" << localTag << "\t# si varBoucle < i" << endl;
 	ReadKeyword("DO");
 	Statement();
-	cout << "ForInc" << localTag << ":" << endl;
+	cout << "_ForInc" << localTag << ":" << endl;
 	cout << "\tincq " << varBoucle << endl;
-	cout << "\tjmp ForTest" << localTag << endl;
-	cout << "ForEnd" << localTag << ":" << endl;
+	cout << "\tjmp _ForTest" << localTag << endl;
+	cout << "_ForEnd" << localTag << ":" << endl;
 }
 
 // CaseLabelList := Factor {"," Factor}
@@ -802,7 +802,7 @@ void CaseLabelList(unsigned long localTag, unsigned long caseTag, TYPES expType)
 			cout << "\tpopq %rax \t# The value to be compared" << endl;
 			cout << "\tmovq (%rsp) %rbx \t# The value in the CASE _ OF" << endl;
 			cout << "\tcmpq %rax, %rbx" << endl;
-			cout << "\tje Case" << localTag << "Label" << caseTag << endl;
+			cout << "\tje _Case" << localTag << "Label" << caseTag << endl;
 			break;
 
 		case DOUBLE:
@@ -810,7 +810,7 @@ void CaseLabelList(unsigned long localTag, unsigned long caseTag, TYPES expType)
 			cout << "\taddq $8, %rsp\t# popq" << endl;
 			cout << "\tfldl (%rsp) \t# The value in the CASE _ OF" << endl; // ICI pas de popq car on ne veut pas supprimer la valeur
 			cout << "\tfcompi %rax, %rbx" << endl;
-			cout << "\tje Case" << localTag << "Label" << caseTag << endl;
+			cout << "\tje _Case" << localTag << "Label" << caseTag << endl;
 			break;
 
 		default:
@@ -829,10 +829,11 @@ void CaseElement(unsigned long localTag, unsigned long caseTag, TYPES type)
 	if (current != COLON)
 		Error("':' attendu");
 	Read();
-	cout << "\tjmp Case" << localTag << "Test" << caseTag + 1 << endl;
-	cout << "Case" << localTag << "Label" << caseTag << ":" << endl;
+	cout << "\tjmp _Case" << localTag << "Test" << caseTag + 1 << endl;
+	cout << "_Case" << localTag << "Label" << caseTag << ":" << endl;
 
 	Statement();
+	cout << "\tjmp _Case" << localTag << "End" << endl; // On ne peut traiter qu'un seul label
 }
 
 // CaseStatement := "CASE" Expression "OF" CaseElement {; CaseElement} ["ELSE" Statement] "END"
@@ -848,15 +849,14 @@ void CaseStatement()
 		ReadIf(SEMICOLON);
 		CaseElement(localTag, caseTag++, type);
 	} while (current == SEMICOLON);
-	cout << "Case" << localTag << "Test" << ++caseTag << ":" << endl;
+	cout << "_Case" << localTag << "Test" << ++caseTag << ":" << endl;
 	if(IsKeyword("ELSE"))
 	{
 		ReadKeyword("ELSE");
 		Statement();
 	}
 	ReadKeyword("END");
-	cout << "\tjmp Case" << localTag << "End" << endl;
-	cout << "Case" << localTag << "End:" << endl;
+	cout << "_Case" << localTag << "End:" << endl;
 }
 
 // DisplayStatement := "DISPLAY" Expression {"," Expression}
@@ -865,7 +865,7 @@ void DisplayStatement(void)
 	ReadKeyword("DISPLAY");
 	TYPES type;
 	int localTag = 0, displayNumber = ++TagNumber;
-	cout << "Display" << displayNumber << ":" << endl;
+	cout << "_Display" << displayNumber << ":" << endl;
 	do
 	{
 		ReadIf(COMMA);
@@ -873,7 +873,6 @@ void DisplayStatement(void)
 		{
 			cout << "\tmovq $_EmptyString, %rdi" << endl;
 			cout << "\tcall puts@PLT" << endl; // Saut de ligne
-			cerr << "Next : " << charTokenToString(current) << endl;
 			continue;
 		}
 		type = Expression();
@@ -895,11 +894,11 @@ void DisplayStatement(void)
 			cout << "\tmovq $_StringTrue, %rdi" << endl;
 			cout << "\tcall\tprintf@PLT" << endl;
 			cout << "\tnop\t# Prevent problems with printf" << endl;
-			cout << "\tjmp Display" << displayNumber << "_" << localTag << "End" << endl;
-			cout << "DisplayFalse" << displayNumber << "_" << localTag << ":\t movq $_StringFalse, %rdi" << endl;
+			cout << "\tjmp _Display" << displayNumber << "_" << localTag << "End" << endl;
+			cout << "_DisplayFalse" << displayNumber << "_" << localTag << ":\t movq $_StringFalse, %rdi" << endl;
 			cout << "\tcall\tprintf@PLT" << endl;
 			cout << "\tnop\t# Prevent problems with printf" << endl;
-			cout << "Display" << displayNumber << "_" << localTag << "End:" << endl;
+			cout << "_Display" << displayNumber << "_" << localTag << "End:" << endl;
 			break;
 
 		case CHAR: // CHAR is 1-byte long BUT stored in 8-byte in register (treatable as INTEGER)
@@ -924,7 +923,7 @@ void DisplayStatement(void)
 			cout << "\tnop\t# Prevent problems with printf" << endl;
 		}
 	} while (current == COMMA);
-	cout << "Display" << displayNumber << "End:\tmovq $_EmptyString, %rdi" << endl;
+	cout << "_Display" << displayNumber << "End:\tmovq $_EmptyString, %rdi" << endl;
 	cout << "\tcall puts@PLT" << endl; // Saut de ligne
 }
 
