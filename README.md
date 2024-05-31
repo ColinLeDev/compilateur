@@ -74,14 +74,16 @@ Hello World!
  
 ```
 
-TOUS les tags utilisés dans le compilateur pour autre chose que les variables commencent par un _, pour laisser toute latitude aux identifiants
+TOUS les tags utilisés dans le compilateur pour autre chose que les variables commencent (Devraient commencer pour une part) par un _, pour laisser toute latitude aux identifiants
 > On aurait pu simplement ajouter `_` à la fin, ou simplement faire en sorte que les variables soient de la forme `var_{ID}`
 
 
 ## Limites détectées :
 FOR : Si erreur "Mot clé `DOWNTO` attendu", le mot clé `TO` fait aussi l'affaire (gestion simplifiée de l'attente)
+
 Le traitement des strings n'est pas permis, puisque en regardant comment le C effectue cette gestion, les strings sont pré-mises dans une variable mémoire : (voir codeTests)
-`g++ -ggdb -o compilateur compilateur.cpp tokeniser.o`
+
+`g++ -S -o codeTests/coutStr.s codeTests/coutStr.cpp`
 ```
 	.section	.rodata
 .LC0:
