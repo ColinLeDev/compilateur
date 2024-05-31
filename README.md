@@ -53,3 +53,42 @@ To : 64 bit 80x86 assembly langage (AT&T)
 // Digit := "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
 // Letter := "a"|...|"z"
 
+
+## Ajouts personnels :
+// RepeatStatement := "REPEAT" Statement "UNTIL" Expression
+
+// DisplayStatement != "DISPLAY" (!|Expression) {"," (!|Expression)}
+> Chaque valeur est affichée à la suite, sséparées par des espaces (SAUF POUR DES CHAR), puis un passage à la ligne est effectué
+> DISPLAY !. affiche un premier passage à la ligne (! = '\n'), puis un deuxième (celui du DISPLAY)
+
+> ```DISPLAY !.```
+```./test/test
+
+ 
+```
+
+> ```DISPLAY !, 'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd', '!'.```
+```./test/test
+
+Hello World!
+ 
+```
+
+TOUS les tags utilisés dans le compilateur pour autre chose que les variables commencent par un _, pour laisser toute latitude aux identifiants
+> On aurait pu simplement ajouter `_` à la fin, ou simplement faire en sorte que les variables soient de la forme `var_{ID}`
+
+
+## Limites détectées :
+FOR : Si erreur "Mot clé `DOWNTO` attendu", le mot clé `TO` fait aussi l'affaire (gestion simplifiée de l'attente)
+Le traitement des strings n'est pas permis, puisque en regardant comment le C effectue cette gestion, les strings sont pré-mises dans une variable mémoire : (voir codeTests)
+`g++ -ggdb -o compilateur compilateur.cpp tokeniser.o`
+```
+	.section	.rodata
+.LC0:
+	.string	"Hello World!"
+.LC1:
+	.string	"Hello World2!"
+	.text
+	.globl	main
+	.type	main, @function
+```
