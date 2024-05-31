@@ -4,7 +4,7 @@
 _FormatStringInt:	 .string "%d "
 _FormatStringUInt:	 .string "%llu "
 _FormatStringDouble:	 .string "%lf "
-_FormatStringChar:	 .string "%c"
+_FormatStringChar:	 .string "%c "
 _StringTrue:	 .string "TRUE "
 _StringFalse:	 .string "FALSE "
 _EmptyString:	 .string ""

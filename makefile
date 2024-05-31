@@ -2,6 +2,7 @@ all:	lancer
 run:	total
 total:	lancer
 	./test/test
+lancer:	machine
 clean:
 		rm -rf *.o *.s tokeniser.cpp
 tokeniser: tokeniser.o
@@ -15,14 +16,12 @@ compilation:		compilateur test/test.p
 		./compilateur <test/test.p >test/test.s
 machine: compilation test/test.s
 		gcc -ggdb -no-pie -fno-pie test/test.s -o test/test
-lancer:	machine
 ddd:
 		ddd ./test/test
 gdb:
 		gdb ./test/test
+
 comp: clean compilateur
-teste: clean test/teste.c
-		gcc -g -c -S test/teste.c
 
 
 testC: compilateur test/testAll.p
@@ -33,7 +32,13 @@ test: testS
 		./test/testAll
 
 
+test2C: compilateur test/test.p
+		./compilateur <test/test.p >test/test.s
+test2S: test2C test/test.s
+		gcc -ggdb -no-pie -fno-pie test/test.s -o test/testAll
+test2: test2S
+		./test/testAll
 
-temp: test/test.s
-		gcc -ggdb -no-pie -fno-pie test/test.s -o test/test
-		./test/test
+
+testCode: clean codeTests/teste.c
+		gcc -g -c -S codeTests/teste.c

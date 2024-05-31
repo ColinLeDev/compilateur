@@ -92,3 +92,7 @@ Le traitement des strings n'est pas permis, puisque en regardant comment le C ef
 	.globl	main
 	.type	main, @function
 ```
+
+# Tester :
+> `make test` → tester avec test/testAll.p
+> `make test2` → tester avec test/test.p
